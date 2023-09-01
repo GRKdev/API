@@ -1,42 +1,22 @@
 from flask import request, jsonify
 from extensions import app
-from functions.albaranes_f import obtener_por_numero_albaran
-from functions.clientes_f import obtener_por_nombre_cliente
-
+from functions.albaranes_f_stat import obtener_importe_por_mes
 
 @app.route('/api/alb_stat', methods=['GET'])
-
-def get_albaranes_stat():
-    detalle_cliente = request.args.get('detalle_cliente')
+def get_albaran_stat():
+    params_mapping = {
+        'cli_mes': obtener_importe_por_mes,
+    }
     combined_results = []
-
-    i = 1
-    while True:
-        numero_albaran_key = f'all{i}' if i > 1 else 'all'
-        numero_albaran = request.args.get(numero_albaran_key)
-
-        if not numero_albaran:
-            break
-
-        albaran = obtener_por_numero_albaran(numero_albaran)
-        if not albaran:
-            return jsonify({'error': f'Albarán {numero_albaran} no encontrado'}), 404
-
-        if detalle_cliente:
-            detalles = detalle_cliente.split(',')
-            cliente = obtener_por_nombre_cliente(albaran['NombreCliente'])
-            if not cliente:
-                return jsonify({'error': f'Cliente del albarán {numero_albaran} no encontrado'}), 404
-
-            cliente_filtered = {k: cliente[k] for k in detalles if k in cliente}
-            combined_albaran = {**albaran, "cliente": cliente_filtered}
-            combined_results.append(combined_albaran)
-        else:
-            combined_results.append(albaran)
-
-        i += 1
-
+    for param, function in params_mapping.items():
+        value = request.args.get(param)
+        if value:
+            results = function(value)
+            if isinstance(results, dict):
+                results = [results]
+            combined_results.extend(results)
+    
     if not combined_results:
-        return jsonify({'error': 'No se han proporcionado parámetros válidos'}), 400
-
+        return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
+    
     return jsonify(combined_results)

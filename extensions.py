@@ -13,3 +13,4 @@ db = client.chatnext
 
 db.Articulos.create_index([("NombreArticulo", "text")], default_language='spanish')
 db.Clientes.create_index([("NombreCliente", "text")], default_language='spanish')
+db.CabezeraAlbaran.create_index([("NombreCliente", "text")], default_language='spanish')
