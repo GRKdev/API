@@ -43,7 +43,7 @@ def obtener_por_codigo_articulo(codigo):         #http://localhost:5000/api/art?
     else:
         return {}
     
-def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?barra=193134010546
+def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=193134010546
     collection = db['Articulos']
     if not codigo:
         return []
@@ -70,7 +70,7 @@ def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?barra=193
     
     return serialized_results
 
-def obtener_precio_articulo_nombre(nombre_articulo): #http://localhost:5000/api/art?preuart=mouse
+def obtener_precio_articulo_nombre(nombre_articulo): #http://localhost:5000/api/art?price=mouse
     collection = db['Articulos']
     search_terms = nombre_articulo.split(',')
     search_string = " ".join(['"' + term + '"' for term in search_terms])
@@ -86,7 +86,7 @@ def obtener_precio_articulo_nombre(nombre_articulo): #http://localhost:5000/api/
     
     return serialized_results
 
-def obtener_precio_articulo_codigo(codigo):         #http://localhost:5000/api/art?codepreu=1007
+def obtener_precio_articulo_codigo(codigo):         #http://localhost:5000/api/art?pricecode=1007
     collection = db['Articulos']    
     if codigo:
         try:
