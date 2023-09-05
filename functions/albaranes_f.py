@@ -15,3 +15,11 @@ def obtener_por_numero_albaran(numero):
         return mongo_to_json(albaran)
     else:
         return None
+    
+def obtener_por_nombre_cliente(nombre):
+    collection = db['Clientes']
+    cliente = collection.find_one({"NombreCliente": nombre})
+    if cliente:
+        return mongo_to_json(cliente)
+    else:
+        return None

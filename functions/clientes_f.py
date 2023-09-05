@@ -110,3 +110,8 @@ def obtener_por_tlf(telefono): #http://localhost:5000/api/cli?clitlf=123456789
         serialized_results.append(cleaned_serialized)
 
     return serialized_results
+
+def obtener_albaranes_por_nombre_cliente(nombre_cliente): #http://localhost:5000/api/cli/alb?info=pepito
+    collection = db['CabeceraAlbaran']
+    albaranes = collection.find({"NombreCliente": nombre_cliente}).sort("FechaAlbaran", -1).limit(10)
+    return [json.loads(json.dumps(albaran, default=serialize_mongo_object)) for albaran in albaranes]
