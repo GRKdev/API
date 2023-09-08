@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from extensions import app
-from functions.albaranes_f_stat import obtener_importe_por_mes, obtener_totales_anuales, obtener_meses_currentyear, obtener_meses_selectedyear
+from functions.albaranes_f_stat import obtener_importe_por_mes, obtener_totales_anuales, obtener_meses_currentyear, obtener_meses_selectedyear, obtener_anos_meses
 
 @app.route('/api/alb_stat', methods=['GET'])
 def get_albaran_stat():
@@ -9,12 +9,17 @@ def get_albaran_stat():
         'total': obtener_totales_anuales,
         't_m_cy': obtener_meses_currentyear,
         't_m_y': obtener_meses_selectedyear,
+        'total_ym': obtener_anos_meses
     }
     combined_results = []
     for param, function in params_mapping.items():
         value = request.args.get(param)
-        if value:
-            results = function(value)
+        if value or param == 'total_ym':
+            if param == 'total_ym':
+                results = function()
+            else:
+                results = function(value)
+
             if isinstance(results, dict):
                 results = [results]
             combined_results.extend(results)

@@ -124,3 +124,42 @@ def obtener_meses_selectedyear(year):  # http://localhost:5000/api/alb_stat?t_m_
         "Año": selected_year
 
     }
+
+def obtener_anos_meses():  # http://localhost:5000/api/alb_stat?total_ym=true
+    collection = db['CabeceraAlbaran']
+    pipeline = [
+        {
+            "$group": {
+                "_id": {"year": {"$year": "$FechaAlbaran"}, "month": {"$month": "$FechaAlbaran"}},
+                "ImporteTotal": {"$sum": "$ImporteFactura"}
+            }
+        },
+        {"$sort": {"_id.year": 1, "_id.month": 1}}
+    ]
+    results = collection.aggregate(pipeline)
+
+    meses = [
+        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ]
+    output = []
+    current_year = None
+    year_data = {}
+
+    for r in results:
+        year = r["_id"]["year"]
+        month = r["_id"]["month"]
+        importe = round(r["ImporteTotal"], 2)
+
+        if current_year != year:
+            if year_data:
+                output.append({"Año": current_year, "IngresosMensuales": year_data})
+            year_data = {mes: "0 €" for mes in meses}
+            current_year = year
+
+        year_data[meses[month - 1]] = f"{importe} €"
+
+    if year_data:
+        output.append({"Año": current_year, "IngresosMensuales": year_data})
+
+    return output

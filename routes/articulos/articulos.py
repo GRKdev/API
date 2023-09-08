@@ -12,7 +12,7 @@ def get_articulos():
     params_mapping = {
         'info': obtener_por_nombre_articulo,
         'code': obtener_por_codigo_articulo,
-        'bar': obtener_por_codigo_barra,
+        'barra': obtener_por_codigo_barra,
         'price': obtener_precio_articulo_nombre,
         "pricecode": obtener_precio_articulo_codigo,
         "all": obtener_por_nombre_all,
