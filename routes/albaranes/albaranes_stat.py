@@ -1,6 +1,9 @@
 from flask import request, jsonify
 from extensions import app
-from functions.albaranes_f_stat import obtener_importe_por_mes, obtener_totales_anuales_fact, obtener_meses_currentyear_fact, obtener_meses_selectedyear_fact, obtener_anos_meses_fact, obtener_anos_meses_ing
+from functions.albaranes_f_stat import (
+    obtener_importe_por_mes, obtener_totales_anuales_fact, obtener_meses_currentyear_fact,
+    obtener_meses_selectedyear_fact, obtener_anos_meses_fact, obtener_anos_meses_ing
+)
 
 @app.route('/api/alb_stat', methods=['GET'])
 def get_albaran_stat():

@@ -35,7 +35,7 @@ def obtener_importe_por_mes(nombre_cliente):  # http://localhost:5000/api/alb_st
 
     for r in results:
         month = r["_id"]["month"]
-        importe = r["ImporteTotal"]
+        importe = round(r["ImporteTotal"], 2)
         output_dict[meses[month - 1]] = f"{importe} €"
 
     return {
@@ -87,7 +87,7 @@ def obtener_meses_currentyear_fact(value=None):    #http://localhost:5000/api/al
     output_dict = {mes: "0 €" for mes in meses}
     for r in results:
         month = r["_id"]["month"]
-        importe = r["ImporteTotal"]
+        importe = round(r["ImporteTotal"], 2)
         output_dict[meses[month - 1]] = f"{importe} €"
 
     return {
@@ -116,7 +116,7 @@ def obtener_meses_selectedyear_fact(year):  # http://localhost:5000/api/alb_stat
     output_dict = {mes: "0 €" for mes in meses}
     for r in results:
         month = r["_id"]["month"]
-        importe = r["ImporteTotal"]
+        importe = round(r["ImporteTotal"], 2)
         output_dict[meses[month - 1]] = f"{importe} €"
 
     return {
