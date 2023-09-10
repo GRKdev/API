@@ -1,9 +1,10 @@
 from flask import request, jsonify
 from extensions import app
 from functions.articulos_f import (obtener_por_nombre_articulo, obtener_por_codigo_articulo, 
-                                 obtener_por_codigo_barra, obtener_precio_articulo_nombre, 
-                                 obtener_precio_articulo_codigo, obtener_por_nombre_all, 
-                                 obtener_por_code_all)
+                                 obtener_por_codigo_barra, obtener_precio_articulo_nombre_coste, 
+                                 obtener_precio_articulo_codigo_coste, obtener_por_nombre_all, 
+                                 obtener_por_code_all, obtener_precio_articulo_codigo_venta,
+                                 obtener_precio_articulo_nombre_venta)
 from functions.albaranes_f import obtener_por_numero_albaran
 from functions.clientes_f import obtener_por_nombre_cliente
 
@@ -12,9 +13,11 @@ def get_articulos():
     params_mapping = {
         'info': obtener_por_nombre_articulo,
         'code': obtener_por_codigo_articulo,
-        'barra': obtener_por_codigo_barra,
-        'price': obtener_precio_articulo_nombre,
-        "pricecode": obtener_precio_articulo_codigo,
+        'bar': obtener_por_codigo_barra,
+        'price_cost': obtener_precio_articulo_nombre_coste,
+        "code_cost": obtener_precio_articulo_codigo_coste,
+        'price_buy': obtener_precio_articulo_nombre_venta,
+        "code_buy": obtener_precio_articulo_codigo_venta,        
         "all": obtener_por_nombre_all,
         "allcode": obtener_por_code_all,        
     }

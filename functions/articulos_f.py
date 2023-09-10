@@ -70,7 +70,23 @@ def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=19313
     
     return serialized_results
 
-def obtener_precio_articulo_nombre(nombre_articulo): #http://localhost:5000/api/art?price=mouse
+def obtener_precio_articulo_nombre_coste(nombre_articulo): #http://localhost:5000/api/art?price_cost=mouse
+    collection = db['Articulos']
+    search_terms = nombre_articulo.split(',')
+    search_string = " ".join(['"' + term + '"' for term in search_terms])
+
+    fields = {"NombreArticulo": 1, "PrecioCompra": 1, "CodigoArticulo": 1}
+    results = collection.find({"$text": {"$search": search_string}}, fields)
+
+    serialized_results = []
+    for r in results:
+        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized.pop('_id', None)
+        serialized_results.append(serialized)
+    
+    return serialized_results
+
+def obtener_precio_articulo_nombre_venta(nombre_articulo): #http://localhost:5000/api/art?price_buy=mouse
     collection = db['Articulos']
     search_terms = nombre_articulo.split(',')
     search_string = " ".join(['"' + term + '"' for term in search_terms])
@@ -86,7 +102,25 @@ def obtener_precio_articulo_nombre(nombre_articulo): #http://localhost:5000/api/
     
     return serialized_results
 
-def obtener_precio_articulo_codigo(codigo):         #http://localhost:5000/api/art?pricecode=1007
+def obtener_precio_articulo_codigo_coste(codigo):         #http://localhost:5000/api/art?pricecode_cost=1007
+    collection = db['Articulos']    
+    if codigo:
+        try:
+            codigo = int(codigo)
+        except ValueError:
+            pass  
+    else:
+        return {} 
+
+    fields = {"NombreArticulo": 1, "CodigoArticulo": 1, "PrecioCompra": 1, "_id": 0}
+    result = collection.find_one({"CodigoArticulo": codigo, "CodigoEmpresa": "99"}, projection=fields)
+
+    if result:
+        return json.loads(json.dumps(result, default=serialize_mongo_object))
+    else:
+        return {}
+
+def obtener_precio_articulo_codigo_venta(codigo):         #http://localhost:5000/api/art?pricecode_buy=1007
     collection = db['Articulos']    
     if codigo:
         try:
@@ -103,6 +137,7 @@ def obtener_precio_articulo_codigo(codigo):         #http://localhost:5000/api/a
         return json.loads(json.dumps(result, default=serialize_mongo_object))
     else:
         return {}
+
 
 def obtener_por_nombre_all(nombre_articulo): #http://localhost:5000/api/art?all=mouse
     collection = db['Articulos']
