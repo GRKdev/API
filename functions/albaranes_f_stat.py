@@ -1,7 +1,30 @@
 from extensions import db
 from datetime import datetime
 
-def obtener_fact_por_mes_client_last_3_years(nombre_cliente): # http://localhost:5000/api/alb_stat?cli_fact_3=grk
+MESES = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+]
+
+def procesar_resultados(results, output_dict, acumular_total=False):
+    total_importe = 0
+    for r in results:
+        month = r["_id"]["month"]
+        importe = round(r["ImporteTotal"], 2)
+        output_dict[MESES[month - 1]] = f"{importe} €"
+        if acumular_total:
+            total_importe += importe
+    return total_importe if acumular_total else None
+
+def append_output_if_total_importe_positive(output, total_importe, nombre_real_cliente, year, output_dict):
+    if total_importe > 0:
+        output.append({
+            "NombreCliente": nombre_real_cliente,
+            "Año": year,
+            "IngresosMensuales": output_dict
+        })
+
+def obtener_fact_por_mes_client_last_3_years(nombre_cliente):
     current_year = datetime.now().year
     collection = db['CabeceraAlbaran']
     search_terms = nombre_cliente.split(',')
@@ -29,27 +52,12 @@ def obtener_fact_por_mes_client_last_3_years(nombre_cliente): # http://localhost
         ]
 
         results = collection.aggregate(pipeline)
-
-        meses = [
-            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-        ]
-
-        output_dict = {mes: "0 €" for mes in meses}
-
-        for r in results:
-            month = r["_id"]["month"]
-            importe = round(r["ImporteTotal"], 2)
-            output_dict[meses[month - 1]] = f"{importe} €"
-
-        output.append({
-            "NombreCliente": nombre_real_cliente,
-            "Año": year,
-            "IngresosMensuales": output_dict
-        })
+        output_dict = {mes: "0 €" for mes in MESES}
+        
+        total_importe = procesar_resultados(results, output_dict, acumular_total=True)
+        append_output_if_total_importe_positive(output, total_importe, nombre_real_cliente, year, output_dict)
 
     return output
-
 
 def obtener_fact_por_mes_client_cy(nombre_cliente):  # http://localhost:5000/api/alb_stat?cli_fact_cy=grk
     current_year = datetime.now().year  
@@ -76,17 +84,8 @@ def obtener_fact_por_mes_client_cy(nombre_cliente):  # http://localhost:5000/api
     ]
 
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-
-    output_dict = {mes: "0 €" for mes in meses}
-
-    for r in results:
-        month = r["_id"]["month"]
-        importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+    output_dict = {mes: "0 €" for mes in MESES}
+    procesar_resultados(results, output_dict)
 
     return {
         "NombreCliente": nombre_real_cliente, 
@@ -119,17 +118,8 @@ def obtener_ing_por_mes_client_cy(nombre_cliente):  # http://localhost:5000/api/
     ]
 
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-
-    output_dict = {mes: "0 €" for mes in meses}
-
-    for r in results:
-        month = r["_id"]["month"]
-        importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+    output_dict = {mes: "0 €" for mes in MESES}
+    procesar_resultados(results, output_dict)
 
     return {
         "NombreCliente": nombre_real_cliente, 
@@ -165,24 +155,10 @@ def obtener_ing_por_mes_client_last_3_years(nombre_cliente): # http://localhost:
         ]
 
         results = collection.aggregate(pipeline)
+        output_dict = {mes: "0 €" for mes in MESES}
 
-        meses = [
-            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-        ]
-
-        output_dict = {mes: "0 €" for mes in meses}
-
-        for r in results:
-            month = r["_id"]["month"]
-            importe = round(r["ImporteTotal"], 2)
-            output_dict[meses[month - 1]] = f"{importe} €"
-
-        output.append({
-            "NombreCliente": nombre_real_cliente,
-            "Año": year,
-            "IngresosMensuales": output_dict
-        })
+        total_importe = procesar_resultados(results, output_dict, acumular_total=True)
+        append_output_if_total_importe_positive(output, total_importe, nombre_real_cliente, year, output_dict)
 
     return output
 
@@ -221,33 +197,33 @@ def obtener_anos_meses_fact():  # http://localhost:5000/api/alb_stat?fact_total=
     ]
     results = collection.aggregate(pipeline)
 
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
     output = []
     current_year = None
     year_data = {}
-
+    total_importe = 0
+    
     for r in results:
         year = r["_id"]["year"]
         month = r["_id"]["month"]
         importe = round(r["ImporteTotal"], 2)
-
+        
         if current_year != year:
-            if year_data:
+            if year_data and total_importe > 0:
                 output.append({"Año": current_year, "IngresosMensuales": year_data})
-            year_data = {mes: "0 €" for mes in meses}
+                
+            year_data = {mes: "0 €" for mes in MESES}
+            total_importe = 0 
             current_year = year
-
-        year_data[meses[month - 1]] = f"{importe} €"
-
-    if year_data:
+            
+        year_data[MESES[month - 1]] = f"{importe} €"
+        total_importe += importe
+    
+    if year_data and total_importe > 0:
         output.append({"Año": current_year, "IngresosMensuales": year_data})
-
+        
     return output
 
-def obtener_meses_currentyear_fact(value=None):    #http://localhost:5000/api/alb_stat?fact_cy=true
+def obtener_meses_currentyear_fact(value=None): #http://localhost:5000/api/alb_stat?fact_cy=true
     current_year = datetime.now().year 
     collection = db['CabeceraAlbaran']
     pipeline = [
@@ -261,22 +237,20 @@ def obtener_meses_currentyear_fact(value=None):    #http://localhost:5000/api/al
         {"$sort": {"_id.month": 1}}
     ]
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-    output_dict = {mes: "0 €" for mes in meses}
+
+    output_dict = {mes: "0 €" for mes in MESES}
+
     for r in results:
         month = r["_id"]["month"]
         importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+        output_dict[MESES[month - 1]] = f"{importe} €"
 
     return {
         "IngresosMensuales": output_dict,
         "Año": current_year
     }
 
-def obtener_meses_selectedyear_fact(year):  # http://localhost:5000/api/alb_stat?fact_sy=2022
+def obtener_meses_selectedyear_fact(year): #http://localhost:5000/api/alb_stat?fact_sy=2022
     selected_year = int(year)
     collection = db['CabeceraAlbaran']
     pipeline = [
@@ -289,16 +263,10 @@ def obtener_meses_selectedyear_fact(year):  # http://localhost:5000/api/alb_stat
         },
         {"$sort": {"_id.month": 1}}
     ]
+
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-    output_dict = {mes: "0 €" for mes in meses}
-    for r in results:
-        month = r["_id"]["month"]
-        importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+    output_dict = {mes: "0 €" for mes in MESES}
+    procesar_resultados(results, output_dict)
 
     return {
         "IngresosMensuales": output_dict,
@@ -306,7 +274,7 @@ def obtener_meses_selectedyear_fact(year):  # http://localhost:5000/api/alb_stat
 
     }
 
-def obtener_anos_meses_ing():  # http://localhost:5000/api/alb_stat?ing_total=true
+def obtener_anos_meses_ing(): #http://localhost:5000/api/alb_stat?ing_total=true
     collection = db['CabeceraAlbaran']
     pipeline = [
         {
@@ -319,33 +287,33 @@ def obtener_anos_meses_ing():  # http://localhost:5000/api/alb_stat?ing_total=tr
     ]
     results = collection.aggregate(pipeline)
 
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
     output = []
     current_year = None
     year_data = {}
-
+    total_importe = 0
+    
     for r in results:
         year = r["_id"]["year"]
         month = r["_id"]["month"]
         importe = round(r["ImporteTotal"], 2)
-
+        
         if current_year != year:
-            if year_data:
+            if year_data and total_importe > 0:
                 output.append({"Año": current_year, "IngresosMensuales": year_data})
-            year_data = {mes: "0 €" for mes in meses}
+                
+            year_data = {mes: "0 €" for mes in MESES}
+            total_importe = 0 
             current_year = year
-
-        year_data[meses[month - 1]] = f"{importe} €"
-
-    if year_data:
+            
+        year_data[MESES[month - 1]] = f"{importe} €"
+        total_importe += importe
+    
+    if year_data and total_importe > 0:
         output.append({"Año": current_year, "IngresosMensuales": year_data})
-
+        
     return output
 
-def obtener_meses_currentyear_ing(value=None):    #http://localhost:5000/api/alb_stat?ing_cy=true
+def obtener_meses_currentyear_ing(value=None): #http://localhost:5000/api/alb_stat?ing_cy=true
     current_year = datetime.now().year 
     collection = db['CabeceraAlbaran']
     pipeline = [
@@ -358,23 +326,17 @@ def obtener_meses_currentyear_ing(value=None):    #http://localhost:5000/api/alb
         },
         {"$sort": {"_id.month": 1}}
     ]
+
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-    output_dict = {mes: "0 €" for mes in meses}
-    for r in results:
-        month = r["_id"]["month"]
-        importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+    output_dict = {mes: "0 €" for mes in MESES}
+    procesar_resultados(results, output_dict)
 
     return {
         "IngresosMensuales": output_dict,
         "Año": current_year
     }
 
-def obtener_meses_selectedyear_ing(year):  # http://localhost:5000/api/alb_stat?ing_sy=2022
+def obtener_meses_selectedyear_ing(year): #http://localhost:5000/api/alb_stat?ing_sy=2022
     selected_year = int(year)
     collection = db['CabeceraAlbaran']
     pipeline = [
@@ -387,19 +349,12 @@ def obtener_meses_selectedyear_ing(year):  # http://localhost:5000/api/alb_stat?
         },
         {"$sort": {"_id.month": 1}}
     ]
+
     results = collection.aggregate(pipeline)
-    meses = [
-        'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ]
-    output_dict = {mes: "0 €" for mes in meses}
-    for r in results:
-        month = r["_id"]["month"]
-        importe = round(r["ImporteTotal"], 2)
-        output_dict[meses[month - 1]] = f"{importe} €"
+    output_dict = {mes: "0 €" for mes in MESES}
+    procesar_resultados(results, output_dict)
 
     return {
         "IngresosMensuales": output_dict,
         "Año": selected_year
-
     }
