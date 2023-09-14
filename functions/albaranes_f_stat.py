@@ -24,6 +24,7 @@ def append_output_if_total_importe_positive(output, total_importe, nombre_real_c
             "IngresosMensuales": output_dict
         })
 
+
 def obtener_fact_por_mes_client_last_3_years(nombre_cliente):
     current_year = datetime.now().year
     collection = db['CabeceraAlbaran']

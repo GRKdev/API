@@ -10,7 +10,7 @@ def stat_cantidad_por_comunidad():  # http://localhost:5000/api/cli_stat?stat=co
     results = collection.aggregate(pipeline)
 
     serialized_results = []
-    sin_data_count = 0  # Variable para contar los resultados con ComunidadAutonoma = null
+    sin_data_count = 0
 
     for r in results:
         if r["_id"] is None:

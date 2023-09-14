@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 @app.before_request
 def before_request_func():
-    log_request_info()  # Esto registra la información en tus logs
+    log_request_info()
 
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
@@ -30,7 +30,6 @@ def before_request_func():
     except jwt.InvalidTokenError:
         return jsonify({'message': 'Token inválido'}), 403
 
-# Esto se encargará de registrar la información de la petición
 def log_request_info():
     logging.info(f"Petición recibida: {request.method} {request.url}")
     auth_header = request.headers.get('Authorization')
