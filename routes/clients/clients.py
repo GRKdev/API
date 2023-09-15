@@ -9,6 +9,12 @@ from functions.clientes_f import (
 @app.route('/api/cli', methods=['GET'])
 
 def get_clientes():
+    fields_to_sort = [
+        "NombreCliente", "CodigoCliente", "Telefono", "EMail1", "Comercial", "Domicilio",
+        "Localidad", "Municipio", "ComunidadAutonoma", "CodigoPostal", "Tarifa", "Formapago",
+        "CifDni", "IBAN", "Telefono2", "Telefono3", "EMail2", "FechaAlta", "Comentarios"
+    ]
+    
     params_mapping = {
         'info': obtener_por_nombre_cliente,
         'tlf': obtener_telefono_cliente,
@@ -29,9 +35,17 @@ def get_clientes():
                 results = [results]
             combined_results.extend(results)
             i += 1
-    if not combined_results:
+            
+    sorted_combined_results = []
+    for cliente in combined_results:
+        sorted_cliente = [(field, cliente.get(field, None)) for field in fields_to_sort if field in cliente]
+        sorted_combined_results.append(sorted_cliente)
+
+    if not sorted_combined_results:
         return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
-    return jsonify(combined_results)
+    
+    return jsonify(sorted_combined_results)
+
 
 @app.route('/api/cli/alb', methods=['GET'])
 def get_info_albaranes():

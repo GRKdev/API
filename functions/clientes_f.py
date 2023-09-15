@@ -81,7 +81,7 @@ def obtener_por_nombre_all(nombrecliente): #http://localhost:5000/api/cli?all=al
     for r in results:
         serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
         serialized.pop('_id', None)
-        cleaned_serialized = {k: v for k, v in serialized.items() if v and v.strip()}
+        cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, str) and v.strip())}
         serialized_results.append(cleaned_serialized)
     return serialized_results
 

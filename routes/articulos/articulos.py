@@ -9,7 +9,11 @@ from functions.albaranes_f import obtener_por_numero_albaran
 from functions.clientes_f import obtener_por_nombre_cliente
 
 @app.route('/api/art', methods=['GET'])
+
 def get_articulos():
+
+    fields_to_sort = ["NombreArticulo", "Descripcion", "CodigoArticulo", "PrecioVenta", "PrecioCompra", "Stock", "Proveedor", "Marca", "Familia", "CodigoBarras", "CodigoAlternativo"]
+
     params_mapping = {
         'info': obtener_por_nombre_articulo,
         'code': obtener_por_codigo_articulo,
@@ -22,6 +26,8 @@ def get_articulos():
         "allcode": obtener_por_code_all,        
     }
     combined_results = []
+    empty_results = False 
+
     for param, function in params_mapping.items():
         i = 1
         while True:
@@ -29,10 +35,15 @@ def get_articulos():
             if not value:
                 break
             results = function(value)
+
+            if not results or (isinstance(results, list) and all(not r for r in results)):
+                empty_results = True
+
             if isinstance(results, dict):
                 results = [results]
             combined_results.extend(results)
             i += 1
+
     for articulo in combined_results:
         detalle_albaran = request.args.get('detalle_albaran')
         if detalle_albaran:
@@ -42,13 +53,22 @@ def get_articulos():
                 albaran_filtered = {k: albaran[k] for k in detalles if k in albaran}
                 articulo['detalle_albaran'] = albaran_filtered
         detalle_cliente = request.args.get('detalle_cliente')
+        
         if detalle_cliente:
             cliente = obtener_por_nombre_cliente(articulo['NombreCliente'])
             if cliente:
                 detalles = detalle_cliente.split(',')
                 cliente_filtered = {k: cliente[k] for k in detalles if k in cliente}
                 articulo['detalle_cliente'] = cliente_filtered
-    if not combined_results:
+
+    sorted_combined_results = []
+    for articulo in combined_results:
+        sorted_articulo = [(field, articulo.get(field, None)) for field in fields_to_sort if field in articulo]
+        sorted_combined_results.append(sorted_articulo)
+
+    if not sorted_combined_results:
         return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
-    
-    return jsonify(combined_results)
+    if empty_results:
+        return jsonify({'error': 'Artículo no encontrado'}), 404
+
+    return jsonify(sorted_combined_results)
