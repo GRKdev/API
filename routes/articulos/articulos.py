@@ -67,8 +67,8 @@ def get_articulos():
         sorted_combined_results.append(sorted_articulo)
 
     if not sorted_combined_results:
-        return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
+        return jsonify({'error': 'Parametro no reconocido o faltante'}), 400
     if empty_results:
-        return jsonify({'error': 'Artículo no encontrado'}), 404
+        return jsonify({'error': 'Articulo no encontrado'}), 404
 
     return jsonify(sorted_combined_results)

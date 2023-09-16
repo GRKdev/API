@@ -1,6 +1,5 @@
 from extensions import  db
-from utils import serialize_mongo_object
-import json
+from bson import json_util
 
 
 def obtener_por_nombre_cliente(nombrecliente): #http://localhost:5000/api/cli?info=alvarez,soto
@@ -8,14 +7,13 @@ def obtener_por_nombre_cliente(nombrecliente): #http://localhost:5000/api/cli?in
     search_terms = nombrecliente.split(',')
     search_string = " ".join(['"' + term + '"' for term in search_terms]) 
 
-    fields = {"NombreCliente": 1, "Telefono": 1, "EMail1": 1}
+    fields = {"NombreCliente": 1, "Telefono": 1, "EMail1": 1, "Comentarios": 1}
     results = collection.find({"$text": {"$search": search_string}}, fields)
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
-        serialized.pop('_id', None)
-        cleaned_serialized = {k: v for k, v in serialized.items() if v and str(v).strip()}
+        serialized = json_util.loads(json_util.dumps(r))
+        cleaned_serialized = {k: v for k, v in serialized.items() if v and str(v).strip() and k != '_id'}
         serialized_results.append(cleaned_serialized)
 
     return serialized_results
@@ -30,7 +28,7 @@ def obtener_telefono_cliente(nombrecliente): #http://localhost:5000/api/cli?tlf=
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
 
         cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, int) or v.strip())}
@@ -47,7 +45,7 @@ def obtener_email_cliente(nombrecliente): #http://localhost:5000/api/cli?mail=al
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
 
         cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, int) or v.strip())}
@@ -64,7 +62,7 @@ def obtener_direccion_cliente(nombrecliente): #http://localhost:5000/api/cli?dir
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
 
         cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, int) or v.strip())}
@@ -79,7 +77,7 @@ def obtener_por_nombre_all(nombrecliente): #http://localhost:5000/api/cli?all=al
     results = collection.find({"$text": {"$search": search_string}})
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
         cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, str) and v.strip())}
         serialized_results.append(cleaned_serialized)
@@ -105,7 +103,7 @@ def obtener_por_tlf(telefono): #http://localhost:5000/api/cli?clitlf=123456789
     results = collection.find(query, projection=projection_fields)
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         cleaned_serialized = {k: v for k, v in serialized.items() if v and (isinstance(v, int) or v.strip())}
         serialized_results.append(cleaned_serialized)
 
@@ -114,4 +112,4 @@ def obtener_por_tlf(telefono): #http://localhost:5000/api/cli?clitlf=123456789
 def obtener_albaranes_por_nombre_cliente(nombre_cliente): #http://localhost:5000/api/cli/alb?info=pepito
     collection = db['CabeceraAlbaran']
     albaranes = collection.find({"NombreCliente": nombre_cliente}).sort("FechaAlbaran", -1).limit(10)
-    return [json.loads(json.dumps(albaran, default=serialize_mongo_object)) for albaran in albaranes]
+    return [json_util.loads(json_util.dumps(albaran)) for albaran in albaranes]

@@ -1,6 +1,5 @@
 from extensions import db
-from utils import serialize_mongo_object
-import json
+from bson import json_util
 
 def obtener_por_nombre_articulo(nombre_articulo): #http://localhost:5000/api/art?info=mouse
     collection = db['Articulos']
@@ -12,14 +11,13 @@ def obtener_por_nombre_articulo(nombre_articulo): #http://localhost:5000/api/art
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
         filtered_serialized = {k: v for k, v in serialized.items() if v and str(v).strip()}
         serialized_results.append(filtered_serialized)
     
     return serialized_results
 
-    
 def obtener_por_codigo_articulo(codigo):         #http://localhost:5000/api/art?code=1007
     collection = db['Articulos']    
     if codigo:
@@ -39,7 +37,7 @@ def obtener_por_codigo_articulo(codigo):         #http://localhost:5000/api/art?
                                       "Stock": 1
                                   })
     if result:
-        return json.loads(json.dumps(result, default=serialize_mongo_object))
+        return json_util.loads(json_util.dumps(result))
     else:
         return {}
     
@@ -58,12 +56,21 @@ def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=19313
         {"CodigoBarras": int("0" + codigo)},
         {"CodigoAlternativo": int("0" + codigo)}
     ]
-    results = collection.find({"$and": [{"$or": queries}]})
+    results = collection.find(
+        {"$and": [{"$or": queries}]},
+        projection={
+            "_id": 0,
+            "CodigoArticulo": 1,
+            "NombreArticulo": 1,
+            "Descripcion": 1,
+            "PrecioVenta": 1,
+            "Stock": 1
+        }
+    )
     
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
-        serialized.pop('_id', None)
+        serialized = json_util.loads(json_util.dumps(r))
         serialized_results.append(serialized)
     
     return serialized_results
@@ -78,7 +85,7 @@ def obtener_precio_articulo_nombre_coste(nombre_articulo): #http://localhost:500
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
         serialized_results.append(serialized)
     
@@ -94,7 +101,7 @@ def obtener_precio_articulo_nombre_venta(nombre_articulo): #http://localhost:500
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
         serialized_results.append(serialized)
     
@@ -114,7 +121,7 @@ def obtener_precio_articulo_codigo_coste(codigo):         #http://localhost:5000
     result = collection.find_one({"CodigoArticulo": codigo}, projection=fields)
 
     if result:
-        return json.loads(json.dumps(result, default=serialize_mongo_object))
+        return json_util.loads(json_util.dumps(result))
     else:
         return {}
 
@@ -132,7 +139,7 @@ def obtener_precio_articulo_codigo_venta(codigo):         #http://localhost:5000
     result = collection.find_one({"CodigoArticulo": codigo}, projection=fields)
 
     if result:
-        return json.loads(json.dumps(result, default=serialize_mongo_object))
+        return json_util.loads(json_util.dumps(result))
     else:
         return {}
 
@@ -146,7 +153,7 @@ def obtener_por_nombre_all(nombre_articulo): #http://localhost:5000/api/art?all=
 
     serialized_results = []
     for r in results:
-        serialized = json.loads(json.dumps(r, default=serialize_mongo_object))
+        serialized = json_util.loads(json_util.dumps(r))
         serialized.pop('_id', None)
         filtered_serialized = {k: v for k, v in serialized.items() if v and str(v).strip()}
         serialized_results.append(filtered_serialized)
@@ -166,6 +173,6 @@ def obtener_por_code_all(codigo):         #http://localhost:5000/api/art?allcode
     result = collection.find_one({"CodigoArticulo": codigo}, projection={"_id": 0})
 
     if result:
-        return json.loads(json.dumps(result, default=serialize_mongo_object))
+        return json_util.loads(json_util.dumps(result))
     else:
         return {}

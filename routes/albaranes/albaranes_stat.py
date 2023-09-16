@@ -22,20 +22,27 @@ def get_albaran_stat():
         'ing_cy': obtener_meses_currentyear_ing,
         'ing_sy': obtener_meses_selectedyear_ing,
     }
+
     combined_results = []
+    
     for param, function in params_mapping.items():
         value = request.args.get(param)
+        
         if value or (param in ['fact_total', 'ing_total'] and param in request.args):
             if param in ['fact_total', 'ing_total']:
                 results = function()
             else:
                 results = function(value)
                 
+            if isinstance(results, dict) and results.get('code') == 404:
+                return jsonify(results), 404
+            
             if isinstance(results, dict):
                 results = [results]
+                
             combined_results.extend(results)
-
+            
     if not combined_results:
         return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
-
+    
     return jsonify(combined_results)

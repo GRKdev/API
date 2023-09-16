@@ -1,6 +1,4 @@
 from extensions import db
-import json
-
 def stat_marca(): #http://localhost:5000/api/art_stat?stat=stat_marca
     collection = db['Articulos']
     

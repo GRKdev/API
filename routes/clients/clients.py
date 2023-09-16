@@ -25,24 +25,20 @@ def get_clientes():
     }
     combined_results = []
     for param, function in params_mapping.items():
-        i = 1
-        while True:
-            value = request.args.get(f'{param}{i}' if i > 1 else param)
-            if not value:
-                break
-            results = function(value)
-            if isinstance(results, dict):
-                results = [results]
-            combined_results.extend(results)
-            i += 1
-            
+        for key, value in request.args.items():
+            if key.startswith(param):
+                results = function(value)
+                if isinstance(results, dict):
+                    results = [results]
+                combined_results.extend(results)
+                
     sorted_combined_results = []
     for cliente in combined_results:
         sorted_cliente = [(field, cliente.get(field, None)) for field in fields_to_sort if field in cliente]
         sorted_combined_results.append(sorted_cliente)
 
     if not sorted_combined_results:
-        return jsonify({'error': 'Parámetro no reconocido o faltante'}), 400
+        return jsonify({'error': 'Cliente no encontrado en la base de datos'}), 404
     
     return jsonify(sorted_combined_results)
 
