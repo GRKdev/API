@@ -38,7 +38,7 @@ def get_clientes():
         sorted_combined_results.append(sorted_cliente)
 
     if not sorted_combined_results:
-        return jsonify({'error': 'Cliente no encontrado en la base de datos'}), 404
+        return jsonify({'error': 'Informacion no encontrada en nuestra base de datos'}), 404
     
     return jsonify(sorted_combined_results)
 

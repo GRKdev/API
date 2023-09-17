@@ -39,9 +39,10 @@ def get_articulos():
             if not results or (isinstance(results, list) and all(not r for r in results)):
                 empty_results = True
 
-            if isinstance(results, dict):
-                results = [results]
-            combined_results.extend(results)
+            if results:
+                if isinstance(results, dict):
+                    results = [results]
+                combined_results.extend(results)
             i += 1
 
     for articulo in combined_results:
@@ -67,7 +68,7 @@ def get_articulos():
         sorted_combined_results.append(sorted_articulo)
 
     if not sorted_combined_results:
-        return jsonify({'error': 'Parametro no reconocido o faltante'}), 400
+        return jsonify({'error': 'Articulo no encontrado en nuestra base de datos.'}), 404
     if empty_results:
         return jsonify({'error': 'Articulo no encontrado'}), 404
 

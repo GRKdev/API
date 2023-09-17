@@ -71,7 +71,7 @@ def obtener_fact_por_mes_client_cy(nombre_cliente):  # http://localhost:5000/api
 
     nombre_real_cliente = collection.find_one({"$text": {"$search": search_string}}, {"NombreCliente": 1})
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado", "code": 404}    
+        return {"error": "Cliente no encontrado en la base de datos", "code": 404}    
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:
@@ -108,7 +108,7 @@ def obtener_ing_por_mes_client_cy(nombre_cliente):  # http://localhost:5000/api/
     nombre_real_cliente = collection.find_one({"$text": {"$search": search_string}}, {"NombreCliente": 1})
 
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado", "code": 404}    
+        return {"error": "Cliente no encontrado en la base de datos", "code": 404}    
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:
@@ -145,7 +145,7 @@ def obtener_ing_por_mes_client_last_3_years(nombre_cliente): # http://localhost:
     nombre_real_cliente = collection.find_one({"$text": {"$search": search_string}}, {"NombreCliente": 1})
 
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado", "code": 404}
+        return {"error": "Cliente no encontrado en la base de datos", "code": 404}
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:

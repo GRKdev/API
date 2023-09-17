@@ -18,15 +18,17 @@ def obtener_por_nombre_articulo(nombre_articulo): #http://localhost:5000/api/art
     
     return serialized_results
 
-def obtener_por_codigo_articulo(codigo):         #http://localhost:5000/api/art?code=1007
-    collection = db['Articulos']    
+#http://localhost:5000/api/art?code=1007
+def obtener_por_codigo_articulo(codigo): 
+    collection = db['Articulos']
+    
     if codigo:
         try:
             codigo = int(codigo)
         except ValueError:
             pass  
     else:
-        return {} 
+        return None 
 
     result = collection.find_one({"CodigoArticulo": codigo}, 
                                   projection={
@@ -36,13 +38,19 @@ def obtener_por_codigo_articulo(codigo):         #http://localhost:5000/api/art?
                                       "PrecioVenta": 1,
                                       "Stock": 1
                                   })
+
     if result:
-        return json_util.loads(json_util.dumps(result))
+        filtered_result = {k: v for k, v in result.items() if v is not None and v != ""}
+        if filtered_result:
+            return json_util.loads(json_util.dumps(filtered_result))
+        else:
+            return None
     else:
-        return {}
+        return None
     
 def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=193134010546
     collection = db['Articulos']
+    codigo = codigo.strip()
     if not codigo:
         return []
     try:
@@ -68,12 +76,15 @@ def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=19313
         }
     )
     
-    serialized_results = []
+    filtered_results = []
     for r in results:
-        serialized = json_util.loads(json_util.dumps(r))
-        serialized_results.append(serialized)
+        filtered_result = {k: v for k, v in r.items() if v is not None and v != ""}
+        
+        if filtered_result:
+            serialized = json_util.loads(json_util.dumps(filtered_result))
+            filtered_results.append(serialized)
     
-    return serialized_results
+    return filtered_results
 
 def obtener_precio_articulo_nombre_coste(nombre_articulo): #http://localhost:5000/api/art?price_cost=mouse
     collection = db['Articulos']
