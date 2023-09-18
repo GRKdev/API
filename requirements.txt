@@ -1,0 +1,5 @@
+Flask
+gunicorn
+pymongo
+PyJWT
+bson

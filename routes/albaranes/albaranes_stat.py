@@ -27,7 +27,7 @@ def get_albaran_stat():
     
     for param, function in params_mapping.items():
         value = request.args.get(param)
-        
+
         if value or (param in ['fact_total', 'ing_total'] and param in request.args):
             if param in ['fact_total', 'ing_total']:
                 results = function()
