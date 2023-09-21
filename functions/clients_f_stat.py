@@ -1,11 +1,10 @@
 from extensions import db
 
-def stat_cantidad_por_comunidad():  # http://localhost:5000/api/cli_stat?stat=comu
-    collection = db['Clientes']
 
-    pipeline = [
-        {"$group": {"_id": "$ComunidadAutonoma", "Cantidad": {"$sum": 1}}}
-    ]
+def stat_cantidad_por_comunidad():  # http://localhost:5000/api/cli_stat?stat=comu
+    collection = db["Clientes"]
+
+    pipeline = [{"$group": {"_id": "$ComunidadAutonoma", "Cantidad": {"$sum": 1}}}]
 
     results = collection.aggregate(pipeline)
 
@@ -20,6 +19,8 @@ def stat_cantidad_por_comunidad():  # http://localhost:5000/api/cli_stat?stat=co
             serialized_results.append(serialized)
 
     if sin_data_count > 0:
-        serialized_results.append({"ComunidadAutonoma": "Sin DATA", "Cantidad": sin_data_count})
+        serialized_results.append(
+            {"ComunidadAutonoma": "Sin DATA", "Cantidad": sin_data_count}
+        )
 
     return serialized_results
