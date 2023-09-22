@@ -20,6 +20,9 @@ def obtener_por_nombre_cliente(
         }
         serialized_results.append(cleaned_serialized)
 
+    if not serialized_results:
+        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
+
     return serialized_results
 
 
@@ -46,6 +49,9 @@ def obtener_telefono_cliente(
         }
         serialized_results.append(cleaned_serialized)
 
+    if not serialized_results:
+        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
+    
     return serialized_results
 
 
@@ -72,6 +78,8 @@ def obtener_email_cliente(
         }
         serialized_results.append(cleaned_serialized)
 
+    if not serialized_results:
+        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
     return serialized_results
 
 
@@ -104,6 +112,9 @@ def obtener_direccion_cliente(
         }
         serialized_results.append(cleaned_serialized)
 
+    if not serialized_results:
+        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
+    
     return serialized_results
 
 
@@ -124,6 +135,8 @@ def obtener_por_nombre_all(
             if v and (isinstance(v, str) and v.strip())
         }
         serialized_results.append(cleaned_serialized)
+    if not serialized_results:
+        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
     return serialized_results
 
 
@@ -152,7 +165,8 @@ def obtener_por_tlf(telefono):  # http://localhost:5000/api/cli?clitlf=123456789
             if v and (isinstance(v, int) or v.strip())
         }
         serialized_results.append(cleaned_serialized)
-
+    if not serialized_results:
+        return {"error": f"Cliente con telefono: {telefono} no encontrado en DB"}
     return serialized_results
 
 

@@ -37,7 +37,7 @@ def obtener_fact_por_mes_client_last_3_years(nombre_cliente):
         {"$text": {"$search": search_string}}, {"NombreCliente": 1}
     )
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado", "code": 404}
+        return {"error": f"Cliente {nombre_cliente} no encontrado en DB"}
 
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
@@ -89,7 +89,7 @@ def obtener_fact_por_mes_client_cy(
         {"$text": {"$search": search_string}}, {"NombreCliente": 1}
     )
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado en la base de datos", "code": 404}
+        return {"error": f"Cliente {nombre_cliente} no encontrado en DB"}
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:
@@ -138,7 +138,7 @@ def obtener_ing_por_mes_client_cy(
     )
 
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado en la base de datos", "code": 404}
+        return {"error": f"Cliente {nombre_cliente} no encontrado en DB"}
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:
@@ -187,7 +187,7 @@ def obtener_ing_por_mes_client_last_3_years(
     )
 
     if not nombre_real_cliente:
-        return {"error": "Cliente no encontrado en la base de datos", "code": 404}
+        return {"error": f"Cliente {nombre_cliente} no encontrado en DB"}
     if nombre_real_cliente:
         nombre_real_cliente = nombre_real_cliente.get("NombreCliente", "")
     else:
@@ -351,6 +351,10 @@ def obtener_meses_selectedyear_fact(
 
     results = collection.aggregate(pipeline)
     output_dict = {mes: "0 €" for mes in MESES}
+
+    if not any(results):
+        return {"error": f"No se encontraron datos para el año {selected_year}"}
+
     procesar_resultados(results, output_dict)
 
     return {"IngresosMensuales": output_dict, "Año": selected_year}
@@ -454,6 +458,10 @@ def obtener_meses_selectedyear_ing(
 
     results = collection.aggregate(pipeline)
     output_dict = {mes: "0 €" for mes in MESES}
+
+    if not any(results):
+        return {"error": f"No se encontraron datos para el año {selected_year}"}
+    
     procesar_resultados(results, output_dict)
 
     return {"IngresosMensuales": output_dict, "Año": selected_year}

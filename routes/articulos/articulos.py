@@ -39,7 +39,9 @@ def get_articulos():
             if not value:
                 break
             results = function(value)
-
+            if "error" in results:
+                return jsonify({"error": results["error"]}), 404
+            
             if not results or (
                 isinstance(results, list) and all(not r for r in results)
             ):

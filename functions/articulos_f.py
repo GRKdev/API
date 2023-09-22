@@ -28,6 +28,9 @@ def obtener_por_nombre_articulo(
         }
         serialized_results.append(filtered_serialized)
 
+    if not serialized_results:
+        return {"error": f"Artículo cn nombre {nombre_articulo} no encontrado en DB"}
+
     return serialized_results
 
 
@@ -59,20 +62,22 @@ def obtener_por_codigo_articulo(codigo):
         if filtered_result:
             return json_util.loads(json_util.dumps(filtered_result))
         else:
-            return None
+            return {"error": "Artículo encontrado pero sin datos útiles"}
     else:
-        return None
+        return {
+            "error": f"Código de artículo {codigo} no encontrado en DB"
+        }
 
 
 def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=193134010546
     collection = db["Articulos"]
     codigo = codigo.strip()
     if not codigo:
-        return []
+        return {"error": "Código de barras vacío"}
     try:
         codigo_int = int(codigo)
     except ValueError:
-        return []
+        return {"error": "Código de barras no es un número"}
 
     queries = [
         {"CodigoBarras": codigo_int},
@@ -100,6 +105,9 @@ def obtener_por_codigo_barra(codigo):  # http://localhost:5000/api/art?bar=19313
             serialized = json_util.loads(json_util.dumps(filtered_result))
             filtered_results.append(serialized)
 
+    if not filtered_results:
+        return {"error": f"Código de barras {codigo} no encontrado en DB"}
+
     return filtered_results
 
 
@@ -119,6 +127,10 @@ def obtener_precio_articulo_nombre_coste(
         serialized.pop("_id", None)
         serialized_results.append(serialized)
 
+    if not serialized_results:
+        return {
+            "error": f"Precio de Coste del artículo: {nombre_articulo} no encontrado en DB"
+        }
     return serialized_results
 
 
@@ -137,6 +149,11 @@ def obtener_precio_articulo_nombre_venta(
         serialized = json_util.loads(json_util.dumps(r))
         serialized.pop("_id", None)
         serialized_results.append(serialized)
+
+    if not serialized_results:
+        return {
+            "error": f"Precio de Venta del artículo: {nombre_articulo} no encontrado en DB"
+        }
 
     return serialized_results
 
@@ -159,8 +176,9 @@ def obtener_precio_articulo_codigo_coste(
     if result:
         return json_util.loads(json_util.dumps(result))
     else:
-        return {}
-
+        return {
+            f"error": f"Precio Coste del artículo {codigo} no encontrado en DB"
+        }
 
 def obtener_precio_articulo_codigo_venta(
     codigo,
@@ -180,8 +198,9 @@ def obtener_precio_articulo_codigo_venta(
     if result:
         return json_util.loads(json_util.dumps(result))
     else:
-        return {}
-
+        return {
+            f"error": f"Precio Venta del artículo {codigo} no encontrado en DB"
+        }
 
 def obtener_por_nombre_all(nombre_articulo):  # http://localhost:5000/api/art?all=mouse
     collection = db["Articulos"]
@@ -198,6 +217,9 @@ def obtener_por_nombre_all(nombre_articulo):  # http://localhost:5000/api/art?al
             k: v for k, v in serialized.items() if v and str(v).strip()
         }
         serialized_results.append(filtered_serialized)
+
+    if not serialized_results:
+        return {"error": f"Artículo cn nombre {nombre_articulo} no encontrado en DB"}
 
     return serialized_results
 
@@ -217,4 +239,6 @@ def obtener_por_code_all(codigo):  # http://localhost:5000/api/art?allcode=1007
     if result:
         return json_util.loads(json_util.dumps(result))
     else:
-        return {}
+        return {
+            f"error": f"Artículo código: {codigo} no encontrado en DB"
+        }

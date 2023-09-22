@@ -12,13 +12,13 @@ def obtener_por_numero_albaran(numero):
     try:
         num_albaran = int(numero)
     except ValueError:
-        return {"error": "Número de albarán inválido", "code": 400}
+        return {"error": f"Número de albarán {numero} inválido", "code": 400}
 
     albaran = collection.find_one({"NumeroAlbaran": num_albaran})
     if albaran:
         return mongo_to_json(albaran)
     else:
-        return {"error": "Albarán no encontrado en la base de datos", "code": 404}
+        return {"error": f"Albarán {numero} no encontrado en DB", "code": 404}
 
 
 def obtener_por_nombre_cliente(nombre):

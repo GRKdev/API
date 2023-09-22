@@ -23,10 +23,15 @@ def get_clientes():
         "clitlf": obtener_por_tlf,
     }
     combined_results = []
+
     for param, function in params_mapping.items():
         for key, value in request.args.items():
             if key.startswith(param):
                 results = function(value)
+
+                if "error" in results:
+                    return jsonify({"error": results["error"]}), 404
+
                 if isinstance(results, dict):
                     results = [results]
                 combined_results.extend(results)

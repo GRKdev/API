@@ -32,24 +32,29 @@ def get_albaran_stat():
 
     combined_results = []
 
-    for param, function in params_mapping.items():
-        value = request.args.get(param)
+    try:
+        # Tu lógica de negocio aquí
+        for param, function in params_mapping.items():
+            value = request.args.get(param)
 
-        if value or (param in ["fact_total", "ing_total"] and param in request.args):
-            if param in ["fact_total", "ing_total"]:
-                results = function()
-            else:
-                results = function(value)
+            if value or (param in ["fact_total", "ing_total"] and param in request.args):
+                if param in ["ing_cy", "fact_cy", "fact_total", "ing_total"] and value.lower() != "true":
+                    return jsonify({"error": "Valor no permitido para ing_cy"}), 400
 
-            if isinstance(results, dict) and results.get("code") == 404:
-                return jsonify(results), 404
+                if param in ["fact_total", "ing_total"]:
+                    results = function()
+                else:
+                    results = function(value)
 
-            if isinstance(results, dict):
-                results = [results]
+                if isinstance(results, dict) and "error" in results:
+                    return jsonify(results), 404
 
-            combined_results.extend(results)
+                if isinstance(results, dict):
+                    results = [results]
 
-    if not combined_results:
-        return jsonify({"error": "Parámetro no reconocido o faltante"}), 400
+                combined_results.extend(results)
 
-    return jsonify(combined_results)
+        return jsonify(combined_results)
+
+    except Exception as e:  # Captura cualquier excepción
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
