@@ -2,14 +2,18 @@ from flask import request, jsonify
 from extensions import app
 from functions.albaranes_f import obtener_por_numero_albaran, obtener_por_nombre_cliente
 
-
+# http://localhost:5000/api/alb/all?alb=1012
 @app.route("/api/alb/all", methods=["GET"])
 def get_albaranes_all():
     numero_albaran = request.args.get("alb")
+    
+    if numero_albaran is None:
+        return jsonify({"error": "Parámetro de consulta 'alb' no proporcionado"}), 500
+    
     albaran = obtener_por_numero_albaran(numero_albaran)
 
     if "error" in albaran:
-        return jsonify({"error": albaran["error"]}), albaran.get("code", 500)
+        return jsonify({"error": albaran["error"]}), albaran.get("code", 404)
 
     return jsonify(albaran)
 

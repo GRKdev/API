@@ -39,7 +39,7 @@ def get_albaran_stat():
 
             if value or (param in ["fact_total", "ing_total"] and param in request.args):
                 if param in ["ing_cy", "fact_cy", "fact_total", "ing_total"] and value.lower() != "true":
-                    return jsonify({"error": "Valor no permitido para ing_cy"}), 400
+                    return jsonify({"error": "Valor no permitido"}), 400
 
                 if param in ["fact_total", "ing_total"]:
                     results = function()

@@ -48,9 +48,6 @@ def obtener_telefono_cliente(
             if v and (isinstance(v, int) or v.strip())
         }
         serialized_results.append(cleaned_serialized)
-
-    if not serialized_results:
-        return {"error": f"Cliente con nombre: {nombrecliente} no encontrado en DB"}
     
     return serialized_results
 

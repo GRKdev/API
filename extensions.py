@@ -31,6 +31,13 @@ def before_request_func():
     except jwt.InvalidTokenError:
         return jsonify({"message": "Token inválido"}), 403
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Ruta no encontrada"}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Error interno del servidor"}), 500
 
 def log_request_info():
     logging.info(f"Petición recibida: {request.method} {request.url}")
