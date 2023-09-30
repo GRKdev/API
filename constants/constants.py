@@ -5,7 +5,6 @@ fields_to_sort_clients = [
     "EMail1",
     "Comercial",
     "Domicilio",
-    "Localidad",
     "Municipio",
     "ComunidadAutonoma",
     "CodigoPostal",
@@ -18,6 +17,7 @@ fields_to_sort_clients = [
     "EMail2",
     "FechaAlta",
     "Comentarios",
+    "web",
 ]
 
 fields_to_sort_articles = [
